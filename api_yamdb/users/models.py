@@ -1,18 +1,77 @@
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 
+from .validators import custom_username_validator
+
+USER = "user"
+MODERATOR = "moderator"
+ADMIN = "admin"
+
 ROLES = (
-    ("user", "user"),
-    ("moderator", "moderator"),
-    ("admin", "admin"),
+    (USER, USER),
+    (MODERATOR, MODERATOR),
+    (ADMIN, ADMIN),
 )
+
+
 class User(AbstractUser):
-    
+    """Модель пользователя."""
+
+    username = models.CharField(
+        "username",
+        max_length=150,
+        unique=True,
+        blank=False,
+        null=False,
+        help_text="Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only. Can't be <me>.",
+        validators=(custom_username_validator, UnicodeUsernameValidator),
+        error_messages={
+            "unique": "A user with that username already exists.",
+        },
+    )
     email = models.EmailField(
-        blank=False, max_length=254, verbose_name="Email"
+        "email",
+        unique=True,
+        blank=False,
+        null=False,
+        max_length=254,
+    )
+    first_name = models.CharField(
+        "имя",
+        blank=True,
+        max_length=150,
     )
     bio = models.TextField(
-        verbose_name="Биография",
+        "Биография",
         blank=True,
     )
-    role = models.CharField(choices=ROLES, max_length=20)
+    role = models.CharField(
+        "Роль",
+        choices=ROLES,
+        max_length=20,
+        default=USER,
+    )
+    # нужно где-то генерировать, отправлять и проверять
+    confirmatiuon_code = models.CharField(
+        "код подтверждения",
+        max_length=255,
+        blank=False,
+        null=True,
+        default="0000",
+    )
+
+    class Meta:
+        ordering = ["-id"]
+
+    def __str__(self):
+        return self.username
+
+    def is_admin(self):
+        return self.role == ADMIN
+
+    def is_moderator(self):
+        return self.role == MODERATOR
+
+    def is_user(self):
+        return self.role == USER
