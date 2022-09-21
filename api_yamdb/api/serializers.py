@@ -10,3 +10,8 @@ class GetJWTokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("username", "confirmation_code")
+
+class SignUpSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("email", "username")

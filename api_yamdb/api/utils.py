@@ -11,5 +11,3 @@ def code_generator(length):
         code.append(choice(characters))
     shuffle(code)
     return "".join(code)
-
-
