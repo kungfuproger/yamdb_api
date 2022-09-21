@@ -12,8 +12,7 @@ ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     "users.apps.UsersConfig",
-    "title.apps.TitleConfig",
-    "review.apps.ReviewConfig",
+    "reviews.apps.ReviewsConfig",
     "api.apps.ApiConfig",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -98,6 +97,9 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, "static/"),)
 
 
 STATICFILES_DIRS = (os.path.join(BASE_DIR, "static/"),)
+
+
+AUTH_USER_MODEL = "users.User"
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
