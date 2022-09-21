@@ -24,7 +24,7 @@ class User(AbstractUser):
         unique=True,
         blank=False,
         null=False,
-        help_text="Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only. Can't be <me>.",
+        help_text="Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only. Can't be 'me'.",
         validators=(custom_username_validator, UnicodeUsernameValidator),
         error_messages={
             "unique": "A user with that username already exists.",
@@ -53,7 +53,7 @@ class User(AbstractUser):
         default=USER,
     )
     # нужно где-то генерировать, отправлять и проверять
-    confirmatiuon_code = models.CharField(
+    confirmation_code = models.CharField(
         "код подтверждения",
         max_length=255,
         blank=False,
