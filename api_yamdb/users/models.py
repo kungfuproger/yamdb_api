@@ -52,7 +52,6 @@ class User(AbstractUser):
         max_length=20,
         default=USER,
     )
-    # нужно где-то генерировать, отправлять и проверять
     confirmation_code = models.CharField(
         "код подтверждения",
         max_length=255,

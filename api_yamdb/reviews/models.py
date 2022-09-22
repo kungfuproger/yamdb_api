@@ -1,7 +1,6 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-
 from users.models import User
 
 
@@ -48,7 +47,7 @@ class Comment(models.Model):
         verbose_name="Автор",
     )
     review = models.ForeignKey(
-        User,
+        Review,
         on_delete=models.CASCADE,
         related_name="comments",
         verbose_name="к этому отзыву",
