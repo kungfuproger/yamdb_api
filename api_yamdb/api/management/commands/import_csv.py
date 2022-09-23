@@ -36,12 +36,10 @@ class Command(BaseCommand):
                 model_kwargs = {}
                 for field in model._meta.get_fields():
                     name = field.name
-                    name_id = name + '_id'
+                    name_id = name + "_id"
                     if name in row or name_id in row:
                         if name in FK_VALUE:
-                            fkobject = FK_VALUE[name].objects.get(
-                                id=row[name]
-                            )
+                            fkobject = FK_VALUE[name].objects.get(id=row[name])
                             model_kwargs[name] = fkobject
                         elif name_id in FK_VALUE:
                             fkobject = FK_VALUE[name_id].objects.get(
