@@ -5,7 +5,7 @@ from users.models import User
 from reviews.models import Review, Comment
 
 CSV_ROOT = "static/data/"
-CSV_MODEL = {
+FILE_MODEL = {
     "users.csv": User,
     "review.csv": Review,
     "comments.csv": Comment,
@@ -18,21 +18,19 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "csv_name",
+            "csv_file",
             help=(
-                "Enter the csv-file names to import.\n"
+                "Enter the csv-file to import.\n"
                 "Format: users.csv\n\n"
                 "Or nothing to import all."
             ),
             nargs="*",
-            default="all",
         )
 
     def handle(self, *args, **options):
-        def importer(csv_name):
-            url = CSV_ROOT + csv_name
+        def importer(csv_file, model):
+            url = CSV_ROOT + csv_file
             for row in DictReader(open(url, encoding="utf-8")):
-                model = CSV_MODEL[csv_name]
                 model_kwargs = {}
                 for field in model._meta.get_fields():
                     name = field.name
@@ -52,15 +50,16 @@ class Command(BaseCommand):
                 object.save()
             self.stdout.write(
                 self.style.SUCCESS(
-                    'Successfully imported file "%s"' % csv_name
+                    'Successfully imported file "%s"' % csv_file
                 )
             )
 
-        if options["csv_name"] == "all":
-            for csv_name in CSV_MODEL.keys():
-                importer(csv_name)
+        if options["csv_file"]:
+            for csv_file in options["csv_file"]:
+                if csv_file not in FILE_MODEL.keys():
+                    raise KeyError('"%s"| Неизвестное имя файла' % csv_file)
+                model = FILE_MODEL[csv_file]
+                importer(csv_file, model)
         else:
-            for csv_name in options["csv_name"]:
-                if csv_name not in CSV_MODEL.keys():
-                    raise KeyError('"%s"| Неизвестное имя файла' % csv_name)
-                importer(csv_name)
+            for csv_file, model in FILE_MODEL.items():
+                importer(csv_file, model)
