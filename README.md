@@ -39,3 +39,10 @@ Content-Type: application/json
         "username": "string",
         "confirmation_code": "string"
         }
+
+
+### Management-команда import_csv
+
+`python manage.py import_csv` - импортировать все файлы из директории static/data/
+
+`python manage.py import_csv <filename>` - импортировать выбранный файл, можно импортировать сразу несколько выбранных фалов перечислив их имена через пробел.
