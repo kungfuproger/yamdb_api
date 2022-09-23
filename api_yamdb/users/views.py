@@ -7,14 +7,18 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import User
-from .permissions import OwnProfile
-from .serializers import ProfileSerializer, UserSerializer
+from .permissions import AdminOrSuperuserOnly, OwnProfile
+from .serializers import AdminSerializer, ProfileSerializer
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class AdminUserViewSet(viewsets.ModelViewSet):
+    """ """
+
     queryset = User.objects.all()
-    serializer_class = UserSerializer
-
+    serializer_class = AdminSerializer
+    permission_classes = (AdminOrSuperuserOnly, permissions.IsAdminUser)
+    lookup_field="username"
+    
 
 class ProfileViewSet(viewsets.ModelViewSet):
     """
@@ -32,7 +36,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
     """
 
     queryset = User.objects.all()
-
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = ProfileSerializer
 

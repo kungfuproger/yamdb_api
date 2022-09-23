@@ -12,7 +12,7 @@ USER_FIELDS = (
 )
 
 
-class UserSerializer(serializers.ModelSerializer):
+class AdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = USER_FIELDS
