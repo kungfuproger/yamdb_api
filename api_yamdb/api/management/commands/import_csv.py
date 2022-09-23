@@ -10,7 +10,7 @@ FILE_MODEL = {
     "review.csv": Review,
     "comments.csv": Comment,
 }
-FK_VALUE = {"author": User, "review_id": Review}
+FK_MODEL = {"author": User, "review": Review}
 
 
 class Command(BaseCommand):
@@ -27,32 +27,23 @@ class Command(BaseCommand):
             nargs="*",
         )
 
-    def handle(self, *args, **options):
+    def handle(self, **options):
         def importer(csv_file, model):
             url = CSV_ROOT + csv_file
-            for row in DictReader(open(url, encoding="utf-8")):
-                model_kwargs = {}
-                for field in model._meta.get_fields():
-                    name = field.name
-                    name_id = name + "_id"
-                    if name in row or name_id in row:
-                        if name in FK_VALUE:
-                            fkobject = FK_VALUE[name].objects.get(id=row[name])
-                            model_kwargs[name] = fkobject
-                        elif name_id in FK_VALUE:
-                            fkobject = FK_VALUE[name_id].objects.get(
-                                id=row[name_id]
-                            )
-                            model_kwargs[name] = fkobject
-                        else:
-                            model_kwargs[name] = row[name]
-                object = model(**model_kwargs)
-                object.save()
-            self.stdout.write(
-                self.style.SUCCESS(
-                    'Successfully imported file "%s"' % csv_file
-                )
-            )
+            data = DictReader(open(url, encoding="utf-8"))
+            models = []
+            for row in data:
+                kwargs = {}
+                for field, value in row.items():
+                    if "_id" in field:
+                        field = field[:-3]
+                    if field in FK_MODEL.keys():
+                        kwargs[field] = FK_MODEL[field].objects.get(id=value)
+                    else:
+                        kwargs[field] = value
+                models.append(model(**kwargs))
+            model.objects.bulk_create(models)
+            print('Successfully imported file "%s"' % csv_file)
 
         if options["csv_file"]:
             for csv_file in options["csv_file"]:
