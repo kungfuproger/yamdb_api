@@ -39,15 +39,15 @@ class Command(BaseCommand):
                     name_id = name + '_id'
                     if name in row or name_id in row:
                         if name in FK_VALUE:
-                            fobject = FK_VALUE[name].objects.get(
+                            fkobject = FK_VALUE[name].objects.get(
                                 id=row[name]
                             )
-                            model_kwargs[name] = fobject
+                            model_kwargs[name] = fkobject
                         elif name_id in FK_VALUE:
-                            fobject = FK_VALUE[name_id].objects.get(
+                            fkobject = FK_VALUE[name_id].objects.get(
                                 id=row[name_id]
                             )
-                            model_kwargs[name] = fobject
+                            model_kwargs[name] = fkobject
                         else:
                             model_kwargs[name] = row[name]
                 object = model(**model_kwargs)
