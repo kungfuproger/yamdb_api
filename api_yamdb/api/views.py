@@ -1,11 +1,16 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
-from rest_framework import status
+from rest_framework import (
+    decorators, pagination, permissions, status, viewsets,
+)
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
 
-from .serializers import GetJWTokenSerializer, SignUpSerializer
+from .permissions import AdminOrSuperuserOnly
+from .serializers import (
+    AdminSerializer, GetJWTokenSerializer, ProfileSerializer, SignUpSerializer,
+)
 from .utils import code_generator
 from users.models import User
 
@@ -87,3 +92,34 @@ class SignUpView(APIView):
             serializer.data,
             status=status.HTTP_200_OK,
         )
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    """
+    Для админа и суперпользователя GET, GET-list, POST, PATCH, DELETE.
+    Для авторизованого GET PATCH по url 'me'.
+    """
+
+    queryset = User.objects.all()
+    serializer_class = AdminSerializer
+    permission_classes = (AdminOrSuperuserOnly,)
+    lookup_field = "username"
+    pagination_class = pagination.PageNumberPagination
+    search_fields = ("username",)
+
+    @decorators.action(
+        methods=("get", "patch"),
+        detail=False,
+        url_path="me",
+        permission_classes=(permissions.IsAuthenticated,),
+    )
+    def profile(self, request):
+        if request.method == "GET":
+            serializer = ProfileSerializer(request.user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = ProfileSerializer(
+            request.user, data=request.data, partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
