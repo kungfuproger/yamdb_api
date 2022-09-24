@@ -1,5 +1,5 @@
 from rest_framework import (
-    decorators, mixins, pagination, permissions, status, viewsets,
+    decorators, pagination, permissions, status, viewsets,
 )
 from rest_framework.response import Response
 
