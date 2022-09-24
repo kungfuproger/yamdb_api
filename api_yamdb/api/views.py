@@ -14,8 +14,7 @@ from rest_framework_simplejwt.tokens import AccessToken
 
 from .permissions import (
     AdminOrSuperuserOnly,
-    ReviewPermissions,
-    CommentPermissions,
+    SafeOrAuthorOrExceedingRoleOnly
 )
 from .serializers import (
     AdminSerializer,
@@ -144,7 +143,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = (ReviewPermissions,)
+    permission_classes = (SafeOrAuthorOrExceedingRoleOnly,)
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -154,7 +153,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = (CommentPermissions,)
+    permission_classes = (SafeOrAuthorOrExceedingRoleOnly,)
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
