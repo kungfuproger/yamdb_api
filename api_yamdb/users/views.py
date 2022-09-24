@@ -8,14 +8,7 @@ from .permissions import AdminOrSuperuserOnly
 from .serializers import AdminSerializer, ProfileSerializer
 
 
-class UserViewSet(
-    mixins.ListModelMixin,
-    mixins.RetrieveModelMixin,
-    mixins.UpdateModelMixin,
-    mixins.DestroyModelMixin,
-    mixins.CreateModelMixin,
-    viewsets.GenericViewSet,
-):
+class UserViewSet(viewsets.ModelViewSet):
 
     queryset = User.objects.all()
     serializer_class = AdminSerializer
