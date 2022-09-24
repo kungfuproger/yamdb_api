@@ -86,6 +86,15 @@ class Title(models.Model):
         return self.name
 
 
+# связь title_id & genre_id
+class GenreTitle(models.Model):
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+    title = models.ForeignKey(Title, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.title} {self.genre}"
+
+
 class Review(models.Model):
     """Модель отзыва."""
 
