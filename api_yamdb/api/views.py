@@ -1,18 +1,33 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
 from rest_framework import (
-    decorators, pagination, permissions, status, viewsets,
+    decorators,
+    pagination,
+    permissions,
+    status,
+    viewsets,
 )
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
 
-from .permissions import AdminOrSuperuserOnly
+
+from .permissions import (
+    AdminOrSuperuserOnly,
+    ReviewPermissions,
+    CommentPermissions,
+)
 from .serializers import (
-    AdminSerializer, GetJWTokenSerializer, ProfileSerializer, SignUpSerializer,
+    AdminSerializer,
+    GetJWTokenSerializer,
+    ProfileSerializer,
+    SignUpSerializer,
+    ReviewSerializer,
+    CommentSerializer,
 )
 from .utils import code_generator
 from users.models import User
+from reviews.models import Review, Comment
 
 CODE_EMAIL = "confirmation_code@yamdb.yandex"
 
@@ -123,3 +138,23 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+    permission_classes = (ReviewPermissions,)
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = (CommentPermissions,)
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
