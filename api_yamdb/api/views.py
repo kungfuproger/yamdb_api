@@ -60,6 +60,7 @@ class SignUpView(APIView):
     Права доступа: Доступно без токена.
     Использовать имя 'me' в качестве username запрещено.
     Поля email и username должны быть уникальными.
+    POST
     {
     "email": "string",
     "username": "string"
