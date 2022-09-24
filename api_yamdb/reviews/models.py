@@ -2,6 +2,86 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from users.models import User
+from .validators import custom_year_validator
+
+
+class Category(models.Model):
+    """Модель категории произведения."""
+
+    name = models.CharField(
+        "название категории",
+        max_length=256,
+        unique=True,
+    )
+    slug = models.SlugField(
+        "slug категории",
+        max_length=50,
+        unique=True,
+    )
+
+    class Meta:
+        ordering = ["id"]
+
+    def __str__(self):
+        return self.slug
+
+
+class Genre(models.Model):
+    """Модель жанра произведения."""
+
+    name = models.CharField(
+        "название жанра",
+        max_length=256,
+        unique=True,
+    )
+    slug = models.SlugField(
+        "slug жанра",
+        max_length=50,
+        unique=True,
+    )
+
+    class Meta:
+        ordering = ["id"]
+
+    def __str__(self):
+        return self.slug
+
+
+class Title(models.Model):
+    """Модель произведения."""
+
+    name = models.CharField(
+        "название",
+        max_length=200,
+        unique=True,
+    )
+    year = models.PositiveIntegerField(
+        "год выпуска",
+        validators=(custom_year_validator,)
+    )
+    rating = models.PositiveIntegerField(
+        "рейтинг",
+    )
+    description = models.TextField(
+        "описание",
+    )
+    genre = models.ManyToManyField(
+        Genre,
+        related_name="titles",
+    )
+    category = models.ForeignKey(
+        Category,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="titles",
+    )
+
+    class Meta:
+        ordering = ["id"]
+
+    def __str__(self):
+        return self.name
 
 
 class Review(models.Model):
@@ -13,12 +93,12 @@ class Review(models.Model):
         related_name="reviews",
         verbose_name="Автор",
     )
-    #    title = models.ForeignKey(
-    #        Title,
-    #        on_delete=models.CASCADE,
-    #        related_name='reviews',
-    #        verbose_name='Произведение',
-    #    )
+    title = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE,
+        related_name="reviews",
+        verbose_name="Произведение",
+    )
     text = models.TextField(
         "Отзыв",
     )
