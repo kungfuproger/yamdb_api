@@ -13,14 +13,18 @@ USER_FIELDS = (
 
 
 class AdminSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для супер-пользователя или администратора.
+    Доступно изменение всех полей.
+    """
+
     class Meta:
         model = User
         fields = USER_FIELDS
-        # lookup_field="username"
-        # lookup_url_kwarg = "username"
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+    """Сериализатор для профайла. Изменение поля 'role' не доступно."""
 
     class Meta:
         model = User

@@ -1,50 +1,42 @@
-from functools import partial
-
 from rest_framework import (
-    decorators, filters, mixins, pagination, permissions, status, viewsets,
+    decorators, mixins, pagination, permissions, status, viewsets,
 )
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from .models import User
-from .permissions import AdminOrSuperuserOnly, OwnProfile
+from .permissions import AdminOrSuperuserOnly
 from .serializers import AdminSerializer, ProfileSerializer
 
 
-class AdminUserViewSet(viewsets.ModelViewSet):
-    """ """
+class UserViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    mixins.CreateModelMixin,
+    viewsets.GenericViewSet,
+):
 
     queryset = User.objects.all()
     serializer_class = AdminSerializer
-    permission_classes = (AdminOrSuperuserOnly, permissions.IsAdminUser)
-    lookup_field="username"
-    
+    permission_classes = (AdminOrSuperuserOnly,)
+    lookup_field = "username"
+    pagination_class = pagination.PageNumberPagination
+    search_fields = ("username",)
 
-class ProfileViewSet(viewsets.ModelViewSet):
-    """
-    Изменить данные своей учетной записи
-    Права доступа: Любой авторизованный пользователь
-    Поля email и username должны быть уникальными.
-    PATCH
-    {
-    "username": "string",
-    "email": "user@example.com",
-    "first_name": "string",
-    "last_name": "string",
-    "bio": "string"
-      }
-    """
-
-    queryset = User.objects.all()
-    permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = ProfileSerializer
-
-    @decorators.action(methods=("get", "patch"), detail=False, url_path="me")
+    @decorators.action(
+        methods=("get", "patch"),
+        detail=False,
+        url_path="me",
+        permission_classes=(permissions.IsAuthenticated,),
+    )
     def profile(self, request):
         if request.method == "GET":
             serializer = ProfileSerializer(request.user)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        serializer = ProfileSerializer(request.user, data=request.data)
+        serializer = ProfileSerializer(
+            request.user, data=request.data, partial=True
+        )
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+        return Response(serializer.data, status=status.HTTP_200_OK)
