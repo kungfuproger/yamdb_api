@@ -27,9 +27,24 @@ from .serializers import (
     TitleReadSerializer,
     TitleWriteSerializer,
 )
+
+from .permissions import (
+    AdminOrSuperuserOnly,
+    ReviewPermissions,
+    CommentPermissions,
+)
+from .serializers import (
+    AdminSerializer,
+    GetJWTokenSerializer,
+    ProfileSerializer,
+    SignUpSerializer,
+    ReviewSerializer,
+    CommentSerializer,
+)
 from .utils import code_generator
 from reviews.models import Category, Genre, Title
 from users.models import User
+from reviews.models import Review, Comment
 
 CODE_EMAIL = "confirmation_code@yamdb.yandex"
 
@@ -214,3 +229,23 @@ class GenreViewSet(ListCreateDeleteViewSet):
         if self.action == "list":
             return (ReadOnly(),)
         return super().get_permissions()
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+    permission_classes = (ReviewPermissions,)
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = (CommentPermissions,)
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
