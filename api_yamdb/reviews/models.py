@@ -1,5 +1,7 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
 
 from users.models import User
 from .validators import custom_year_validator
@@ -59,8 +61,9 @@ class Title(models.Model):
         "год выпуска",
         validators=(custom_year_validator,)
     )
-    rating = models.PositiveIntegerField(
+    rating = models.IntegerField(
         "рейтинг",
+        default=0,
     )
     description = models.TextField(
         "описание",
@@ -68,6 +71,7 @@ class Title(models.Model):
     genre = models.ManyToManyField(
         Genre,
         related_name="titles",
+        default=None,
     )
     category = models.ForeignKey(
         Category,
@@ -76,6 +80,14 @@ class Title(models.Model):
         on_delete=models.SET_NULL,
         related_name="titles",
     )
+
+    @receiver(post_save, sender="reviews.Review")
+    @receiver(post_delete, sender="reviews.Review")
+    def update_rating(self, *args, **kwargs):
+        reviews = self.reviews.all()
+        self.rating = reviews.aggregate(models.Avg("score")).get("score__avg")
+        self.save(update_fields="rating")
+        return self.rating
 
     class Meta:
         ordering = ["id"]
