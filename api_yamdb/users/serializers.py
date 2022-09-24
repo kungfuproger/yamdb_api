@@ -16,6 +16,8 @@ class AdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = USER_FIELDS
+        # lookup_field="username"
+        # lookup_url_kwarg = "username"
 
 
 class ProfileSerializer(serializers.ModelSerializer):
