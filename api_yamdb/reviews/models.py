@@ -1,7 +1,5 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models.signals import post_save, post_delete
-from django.dispatch import receiver
 
 from users.models import User
 from .validators import custom_year_validator
@@ -81,19 +79,21 @@ class Title(models.Model):
         related_name="titles",
     )
 
-    @receiver(post_save, sender="reviews.Review")
-    @receiver(post_delete, sender="reviews.Review")
-    def update_rating(self, *args, **kwargs):
-        reviews = self.reviews.all()
-        self.rating = reviews.aggregate(models.Avg("score")).get("score__avg")
-        self.save(update_fields="rating")
-        return self.rating
-
     class Meta:
         ordering = ["id"]
 
     def __str__(self):
         return self.name
+
+
+# @receiver(post_save, sender="reviews.Review")
+# @receiver(post_delete, sender="reviews.Review")
+# def update_rating(instance, *args, **kwargs):
+#     title = instance.title
+#     reviews = title.reviews.all()
+#     title.rating = reviews.aggregate(models.Avg("score")).get("score__avg")
+#     title.save(update_fields=["rating"])
+#     return title.rating
 
 
 class Review(models.Model):

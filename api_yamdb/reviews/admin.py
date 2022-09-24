@@ -11,6 +11,14 @@ class CategoryAdmin(admin.ModelAdmin):
     )
 
 
+class GenreAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "name",
+        "slug",
+    )
+
+
 class TitleAdmin(admin.ModelAdmin):
     list_display = (
         "id",
@@ -43,6 +51,7 @@ class ReviewAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Category, CategoryAdmin)
+admin.site.register(Genre, GenreAdmin)
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(Review, ReviewAdmin)
 admin.site.register(Title, TitleAdmin)
