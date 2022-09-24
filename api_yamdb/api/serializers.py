@@ -53,20 +53,32 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    """Сериализатор модели категории."""
 
     class Meta:
         model = Category
         fields = ("name", "slug")
+        lookup_field = "slug"
+        extra_kwargs = {
+            'url': {'lookup_field': 'slug'}
+        }
 
 
 class GenreSerializer(serializers.ModelSerializer):
+    """Сериализатор модели жанра."""
 
     class Meta:
         model = Genre
         fields = ("name", "slug")
+        lookup_field = "slug"
+        extra_kwargs = {
+            'url': {'lookup_field': 'slug'}
+        }
 
 
 class TitleSerializer(serializers.ModelSerializer):
+    """Сериализатор модели произведения."""
+
     genre = GenreSerializer(many=True, required=True)
     category = serializers.SlugRelatedField(
         queryset=Genre.objects.all(), slug_field="slug", required=True
