@@ -86,16 +86,6 @@ class Title(models.Model):
         return self.name
 
 
-# @receiver(post_save, sender="reviews.Review")
-# @receiver(post_delete, sender="reviews.Review")
-# def update_rating(instance, *args, **kwargs):
-#     title = instance.title
-#     reviews = title.reviews.all()
-#     title.rating = reviews.aggregate(models.Avg("score")).get("score__avg")
-#     title.save(update_fields=["rating"])
-#     return title.rating
-
-
 class Review(models.Model):
     """Модель отзыва."""
 
