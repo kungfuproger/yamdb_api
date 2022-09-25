@@ -24,7 +24,7 @@ from .serializers import (
 )
 from .utils import code_generator
 from users.models import User
-from reviews.models import Title, Comment, Review
+from reviews.models import Title, Review
 
 CODE_EMAIL = "confirmation_code@yamdb.yandex"
 
@@ -138,6 +138,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
+    """Обработчик отзывов."""
 
     serializer_class = ReviewSerializer
     permission_classes = (SafeOrAuthorOrExceedingRoleOnly,)
@@ -151,8 +152,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 
 class CommentViewSet(viewsets.ModelViewSet):
+    """Обработчик комментарий."""
 
-    queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = (SafeOrAuthorOrExceedingRoleOnly,)
 
@@ -161,4 +162,4 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         review = get_object_or_404(Review, id=self.kwargs["review_id"])
-        return review.reviews.all()
+        return review.comments.all()
