@@ -14,12 +14,12 @@ router.register("users", UserViewSet, basename="admin_users")
 router.register(
     r"^titles/(?P<title_id>\d+)/reviews",
     ReviewViewSet,
-    basename="review",  # rquired при переопределении get_qeuryset()
+    basename="review",
 )
 router.register(
     r"^titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments",
     CommentViewSet,
-    basename="comment",  # rquired при переопределении get_qeuryset()
+    basename="comment",
 )
 
 
