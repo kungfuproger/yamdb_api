@@ -98,41 +98,12 @@ class TitleWriteSerializer(serializers.ModelSerializer):
 class TitleReadSerializer(serializers.ModelSerializer):
     """Сериализатор модели произведения."""
 
-    genre = GenreSerializer(many=True, required=True)
-    category = CategorySerializer(required=True)
+    genre = GenreSerializer(many=True)
+    category = CategorySerializer()
 
     class Meta:
         model = Title
         fields = (
-            "id", "name", "year", "rating", "description", "genre", "category",
+            "id", "name", "year", "rating", "description", "genre",
+            "category",
         )
-
-    #
-    # def create(self, validated_data):
-    #     genres = validated_data.pop("genre")
-    #     title = Title.objects.create(**validated_data)
-    #
-    #     for genre in genres:
-    #         current_genre, status = Genre.objects.get_or_create(**genre)
-    #         GenresTitles.objects.create(genre=current_genre, title=title)
-    #
-    #     return title
-    #
-    # def update(self, instance, validated_data):
-    #     instance.name = validated_data.get("name", instance.name)
-    #     instance.year = validated_data.get("year", instance.year)
-    #     instance.description = validated_data.get(
-    #         "description", instance.description
-    #     )
-    #     instance.category = validated_data.get("category", instance.category)
-    #
-    #     if "genre" in validated_data:
-    #         genres = validated_data.pop("genre")
-    #         lst = []
-    #         for genre in genres:
-    #             current_genre, status = Genre.objects.get_or_create(**genre)
-    #             lst.append(current_genre)
-    #         instance.genre.set(lst)
-    #
-    #     instance.save()
-    #     return instance
