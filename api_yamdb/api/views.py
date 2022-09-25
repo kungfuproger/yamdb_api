@@ -142,6 +142,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     serializer_class = ReviewSerializer
     permission_classes = (SafeOrAuthorOrExceedingRoleOnly,)
+    pagination_class = pagination.PageNumberPagination
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -156,6 +157,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     serializer_class = CommentSerializer
     permission_classes = (SafeOrAuthorOrExceedingRoleOnly,)
+    pagination_class = pagination.PageNumberPagination
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
