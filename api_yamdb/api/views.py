@@ -2,6 +2,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
 from django.http import Http404
 from django_filters.rest_framework import DjangoFilterBackend
+from django_filters import FilterSet, CharFilter, AllValuesFilter
 from rest_framework import (
     decorators, filters, pagination, permissions, status, viewsets,
 )
@@ -131,6 +132,23 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+class TitleFilter(FilterSet):
+    genre = CharFilter(
+        field_name='genre__slug'
+    )
+    category = CharFilter(
+        field_name='category__slug'
+    )
+    name = CharFilter(
+        lookup_expr="icontains"
+    )
+
+
+    class Meta:
+        model = Title
+        fields = ('genre', 'category', 'name', 'year')
+
+
 class TitleViewSet(viewsets.ModelViewSet):
     """
     Для админа и суперпользователя GET, GET-list, POST, PATCH, DELETE.
@@ -141,7 +159,8 @@ class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleReadSerializer
     permission_classes = (AdminOrSuperuserOnly,)
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ("category", "genre", "name", "year")
+    filterset_class = TitleFilter
+    # filterset_fields = ("name", "year")
     pagination_class = pagination.PageNumberPagination
 
     def get_permissions(self):

@@ -98,13 +98,14 @@ class TitleWriteSerializer(serializers.ModelSerializer):
 class TitleReadSerializer(serializers.ModelSerializer):
     """Сериализатор модели произведения."""
 
-    genre = GenreSerializer(many=True, required=True)
-    category = CategorySerializer(required=True)
+    genre = GenreSerializer(many=True)
+    category = CategorySerializer()
 
     class Meta:
         model = Title
         fields = (
-            "id", "name", "year", "rating", "description", "genre", "category",
+            "id", "name", "year", "rating", "description", "genre",
+            "category",
         )
 
     def create(self, validated_data):
