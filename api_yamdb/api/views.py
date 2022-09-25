@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
 from django.http import Http404
@@ -28,10 +29,7 @@ from .serializers import (
     TitleWriteSerializer,
 )
 
-from .permissions import (
-    AdminOrSuperuserOnly,
-    SafeOrAuthorOrExceedingRoleOnly
-)
+from .permissions import AdminOrSuperuserOnly, SafeOrAuthorOrExceedingRoleOnly
 from .serializers import (
     AdminSerializer,
     GetJWTokenSerializer,
@@ -43,7 +41,7 @@ from .serializers import (
 from .utils import code_generator
 from reviews.models import Category, Genre, Title
 from users.models import User
-from reviews.models import Review, Comment
+from reviews.models import Title, Comment, Review
 
 CODE_EMAIL = "confirmation_code@yamdb.yandex"
 
@@ -232,12 +230,15 @@ class GenreViewSet(ListCreateDeleteViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
 
-    queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = (SafeOrAuthorOrExceedingRoleOnly,)
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+    def get_queryset(self):
+        title = get_object_or_404(Title, id=self.kwargs["title_id"])
+        return title.reviews.all()
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -248,3 +249,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+    def get_queryset(self):
+        review = get_object_or_404(Review, id=self.kwargs["review_id"])
+        return review.reviews.all()
