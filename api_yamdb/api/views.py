@@ -2,20 +2,30 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
 from django.http import Http404
 from django_filters.rest_framework import DjangoFilterBackend
-from django_filters import FilterSet, CharFilter, AllValuesFilter
 from rest_framework import (
-    decorators, filters, pagination, permissions, status, viewsets,
+    decorators,
+    filters,
+    pagination,
+    permissions,
+    status,
+    viewsets,
 )
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
 
+from .filters import TitleFilter
 from .mixins import ListCreateDeleteViewSet
 from .permissions import AdminOrSuperuserOnly, ReadOnly
 from .serializers import (
-    AdminSerializer, CategorySerializer, GenreSerializer, GetJWTokenSerializer,
-    ProfileSerializer, SignUpSerializer, TitleReadSerializer,
-    TitleWriteSerializer
+    AdminSerializer,
+    CategorySerializer,
+    GenreSerializer,
+    GetJWTokenSerializer,
+    ProfileSerializer,
+    SignUpSerializer,
+    TitleReadSerializer,
+    TitleWriteSerializer,
 )
 from .utils import code_generator
 from reviews.models import Category, Genre, Title
@@ -124,29 +134,10 @@ class UserViewSet(viewsets.ModelViewSet):
         if request.method == "GET":
             serializer = ProfileSerializer(request.user)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        serializer = ProfileSerializer(
-            request.user, data=request.data, partial=True
-        )
+        serializer = ProfileSerializer(request.user, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class TitleFilter(FilterSet):
-    genre = CharFilter(
-        field_name='genre__slug'
-    )
-    category = CharFilter(
-        field_name='category__slug'
-    )
-    name = CharFilter(
-        lookup_expr="icontains"
-    )
-
-
-    class Meta:
-        model = Title
-        fields = ('genre', 'category', 'name', 'year')
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -160,16 +151,15 @@ class TitleViewSet(viewsets.ModelViewSet):
     permission_classes = (AdminOrSuperuserOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
-    # filterset_fields = ("name", "year")
     pagination_class = pagination.PageNumberPagination
 
     def get_permissions(self):
-        if self.action == 'retrieve' or self.action == 'list':
+        if self.action == "retrieve" or self.action == "list":
             return (ReadOnly(),)
         return super().get_permissions()
 
     def get_serializer_class(self):
-        if self.action == 'retrieve' or self.action == 'list':
+        if self.action == "retrieve" or self.action == "list":
             return TitleReadSerializer
         return TitleWriteSerializer
 
@@ -191,13 +181,11 @@ class CategoryViewSet(ListCreateDeleteViewSet):
         try:
             instance = self.get_object()
         except Http404:
-            return Response(
-                "Item does not exist", status.HTTP_405_METHOD_NOT_ALLOWED
-            )
+            return Response("Item does not exist", status.HTTP_405_METHOD_NOT_ALLOWED)
         return Response("Item already exists", status.HTTP_400_BAD_REQUEST)
 
     def get_permissions(self):
-        if self.action == 'list':
+        if self.action == "list":
             return (ReadOnly(),)
         return super().get_permissions()
 
@@ -219,12 +207,10 @@ class GenreViewSet(ListCreateDeleteViewSet):
         try:
             instance = self.get_object()
         except Http404:
-            return Response(
-                "Item does not exist", status.HTTP_405_METHOD_NOT_ALLOWED
-            )
+            return Response("Item does not exist", status.HTTP_405_METHOD_NOT_ALLOWED)
         return Response("Item already exists", status.HTTP_400_BAD_REQUEST)
 
     def get_permissions(self):
-        if self.action == 'list':
+        if self.action == "list":
             return (ReadOnly(),)
         return super().get_permissions()

@@ -55,14 +55,9 @@ class Title(models.Model):
         max_length=200,
     )
     year = models.PositiveIntegerField(
-        "год выпуска",
-        validators=(custom_year_validator,)
+        "год выпуска", validators=(custom_year_validator,)
     )
-    rating = models.IntegerField(
-        "рейтинг",
-        default=None,
-        null=True
-    )
+    rating = models.IntegerField("рейтинг", default=None, null=True)
     description = models.TextField(
         "описание",
     )
