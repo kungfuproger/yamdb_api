@@ -55,9 +55,9 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 class ReviewSerializer(serializers.ModelSerializer):
     """Серилизатор отзывов. Отзыв уникален для комбинации author, title"""
+
     author = serializers.SlugRelatedField(
-        slug_field='username',
-        read_only=True
+        slug_field="username", read_only=True
     )
 
     class Meta:
@@ -65,17 +65,16 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = ("id", "text", "author", "score", "pub_date")
         validators = [
             UniqueTogetherValidator(
-                queryset=Review.objects.all(),
-                fields=('author', 'title')
+                queryset=Review.objects.all(), fields=("author", "title")
             )
         ]
 
 
 class CommentSerializer(serializers.ModelSerializer):
     """Сериализатор комментариев."""
+
     author = serializers.SlugRelatedField(
-        slug_field='username',
-        read_only=True
+        slug_field="username", read_only=True
     )
 
     class Meta:
