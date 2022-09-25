@@ -53,7 +53,6 @@ class Title(models.Model):
     name = models.CharField(
         "название",
         max_length=200,
-        unique=True,
     )
     year = models.PositiveIntegerField(
         "год выпуска",

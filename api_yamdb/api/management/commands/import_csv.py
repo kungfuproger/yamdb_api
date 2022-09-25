@@ -1,16 +1,26 @@
+from pprint import pprint
 from django.core.management.base import BaseCommand
 from csv import DictReader
 
 from users.models import User
-from reviews.models import Review, Comment
+from reviews.models import Review, Comment, Category, Genre, Title
 
 CSV_ROOT = "static/data/"
 FILE_MODEL = {
     "users.csv": User,
+    "category.csv": Category,
+    "genre.csv": Genre,
+    "titles.csv": Title,
     "review.csv": Review,
     "comments.csv": Comment,
 }
-FK_MODEL = {"author": User, "review": Review}
+FK_MODEL = {
+    "author": User,
+    "review": Review,
+    "title": Title,
+    "category": Category,
+    "genre": Genre,
+}
 
 
 class Command(BaseCommand):
@@ -42,6 +52,7 @@ class Command(BaseCommand):
                     else:
                         kwargs[field] = value
                 models.append(model(**kwargs))
+            pprint(models)
             model.objects.bulk_create(models)
             print('Successfully imported file "%s"' % csv_file)
 
@@ -53,4 +64,5 @@ class Command(BaseCommand):
                 importer(csv_file, model)
         else:
             for csv_file, model in FILE_MODEL.items():
+                print(csv_file, model)
                 importer(csv_file, model)
