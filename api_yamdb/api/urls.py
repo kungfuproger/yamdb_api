@@ -9,6 +9,7 @@ router = routers.DefaultRouter()
 router.register("users", UserViewSet, basename="admin_users")
 router.register("titles", TitleViewSet, basename="titles")
 router.register("categories", CategoryViewSet, basename="categories")
+router.register("genres", CategoryViewSet, basename="genres")
 
 urlpatterns = [
     path("v1/auth/token/", GetJWTokenView.as_view(), name="get_jwtoken"),
