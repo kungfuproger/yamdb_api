@@ -24,6 +24,8 @@ FK_MODEL = {
 
 
 class Command(BaseCommand):
+    """Команда импорта csv"""
+
     help = "Импорт данных из scv"
 
     def add_arguments(self, parser):
