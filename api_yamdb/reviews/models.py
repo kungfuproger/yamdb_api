@@ -69,6 +69,7 @@ class Title(models.Model):
         Genre,
         related_name="titles",
         default=None,
+        through="GenreTitle",
     )
     category = models.ForeignKey(
         Category,

@@ -101,7 +101,6 @@ class TitleSerializer(serializers.ModelSerializer):
         return title
 
     def update(self, instance, validated_data):
-        genres = validated_data.pop("genre")
         instance.name = validated_data.get("name", instance.name)
         instance.year = validated_data.get("year", instance.year)
         instance.description = validated_data.get(
@@ -109,11 +108,13 @@ class TitleSerializer(serializers.ModelSerializer):
         )
         instance.category = validated_data.get("category", instance.category)
 
-        for genre in genres:
-            current_genre, status = Genre.objects.get_or_create(**genre)
-            GenreTitle.objects.get_or_create(
-                genre=current_genre, title=instance
-            )
+        if "genre" in validated_data:
+            genres = validated_data.pop("genre")
+            lst = []
+            for genre in genres:
+                current_genre, status = Genre.objects.get_or_create(**genre)
+                lst.append(current_genre)
+            instance.genre.set(lst)
 
         instance.save()
         return instance
