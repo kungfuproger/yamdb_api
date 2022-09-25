@@ -60,7 +60,8 @@ class Title(models.Model):
     )
     rating = models.IntegerField(
         "рейтинг",
-        default=0,
+        default=None,
+        null=True
     )
     description = models.TextField(
         "описание",

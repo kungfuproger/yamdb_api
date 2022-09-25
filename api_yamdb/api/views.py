@@ -13,7 +13,8 @@ from .mixins import ListCreateDeleteViewSet
 from .permissions import AdminOrSuperuserOnly, ReadOnly
 from .serializers import (
     AdminSerializer, CategorySerializer, GenreSerializer, GetJWTokenSerializer,
-    ProfileSerializer, SignUpSerializer, TitleSerializer,
+    ProfileSerializer, SignUpSerializer, TitleReadSerializer,
+    TitleWriteSerializer
 )
 from .utils import code_generator
 from reviews.models import Category, Genre, Title
@@ -137,7 +138,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     """
 
     queryset = Title.objects.all()
-    serializer_class = TitleSerializer
+    serializer_class = TitleReadSerializer
     permission_classes = (AdminOrSuperuserOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ("category", "genre", "name", "year")
@@ -147,6 +148,11 @@ class TitleViewSet(viewsets.ModelViewSet):
         if self.action == 'retrieve' or self.action == 'list':
             return (ReadOnly(),)
         return super().get_permissions()
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve' or self.action == 'list':
+            return TitleReadSerializer
+        return TitleWriteSerializer
 
 
 class CategoryViewSet(ListCreateDeleteViewSet):
