@@ -69,7 +69,7 @@ class Title(models.Model):
         Genre,
         related_name="titles",
         default=None,
-        through="GenreTitleTsts",
+        through="GenresTitles",
     )
     category = models.ForeignKey(
         Category,
@@ -85,7 +85,8 @@ class Title(models.Model):
     def __str__(self):
         return self.name
 
-class GenreTitleTsts(models.Model):
+
+class GenresTitles(models.Model):
     """Модель для связи title_id & genre_id."""
 
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
