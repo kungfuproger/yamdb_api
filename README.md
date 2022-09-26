@@ -38,20 +38,20 @@ Content-Type: application/json
 `/api/v1/genres/`
 
  TITLES
-`/api/v1/titles/`
-`/api/v1/titles/{titles_id}/`
+*   `/api/v1/titles/
+/api/v1/titles/{titles_id}/
 
  REVIEWS
-`/api/v1/titles/{title_id}/reviews/`
-`/api/v1/titles/{title_id}/reviews/{review_id}/`
+*   `/api/v1/titles/{title_id}/reviews/
+/api/v1/titles/{title_id}/reviews/{review_id}/
 
  COMMENTS
-`/api/v1/titles/{title_id}/reviews/{review_id}/comments/`
-`/api/v1/titles/{title_id}/reviews/{review_id}/comments/{comment_id}/`
+*   `/api/v1/titles/{title_id}/reviews/{review_id}/comments/
+/api/v1/titles/{title_id}/reviews/{review_id}/comments/{comment_id}/
 
  USERS
-`/api/v1/users/`
-`/api/v1/users/{username}/`
+*   `/api/v1/users/
+/api/v1/users/{username}/
 
 Полная информация по запросам доступна в документации: `/redoc/`
 
