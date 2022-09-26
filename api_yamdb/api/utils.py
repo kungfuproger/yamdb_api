@@ -6,6 +6,7 @@ from django.core.mail import send_mail
 
 CODE_EMAIL = "confirmation_code@yamdb.yandex"
 
+
 def code_generator(length):
     """Возвращает код заданой длинны."""
     characters = list(string.ascii_lowercase + string.digits)
