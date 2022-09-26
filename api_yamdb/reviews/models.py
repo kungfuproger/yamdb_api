@@ -55,13 +55,9 @@ class Title(models.Model):
         max_length=200,
     )
     year = models.PositiveIntegerField(
-        "год выпуска",
-        validators=(custom_year_validator,)
+        "год выпуска", validators=(custom_year_validator,)
     )
-    rating = models.IntegerField(
-        "рейтинг",
-        default=0,
-    )
+    rating = models.IntegerField("рейтинг", default=None, null=True)
     description = models.TextField(
         "описание",
     )
@@ -69,6 +65,7 @@ class Title(models.Model):
         Genre,
         related_name="titles",
         default=None,
+        through="GenresTitles",
     )
     category = models.ForeignKey(
         Category,
@@ -83,6 +80,16 @@ class Title(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class GenresTitles(models.Model):
+    """Модель для связи title_id & genre_id."""
+
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+    title = models.ForeignKey(Title, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.title} {self.genre}"
 
 
 class Review(models.Model):

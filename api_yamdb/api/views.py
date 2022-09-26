@@ -1,17 +1,34 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
+from django.http import Http404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import (
-    decorators, pagination, permissions, status, viewsets,
+    decorators,
+    filters,
+    pagination,
+    permissions,
+    status,
+    viewsets,
 )
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
 
-from .permissions import AdminOrSuperuserOnly
+from .filters import TitleFilter
+from .mixins import ListCreateDeleteViewSet
+from .permissions import AdminOrSuperuserOnly, ReadOnly
 from .serializers import (
-    AdminSerializer, GetJWTokenSerializer, ProfileSerializer, SignUpSerializer,
+    AdminSerializer,
+    CategorySerializer,
+    GenreSerializer,
+    GetJWTokenSerializer,
+    ProfileSerializer,
+    SignUpSerializer,
+    TitleReadSerializer,
+    TitleWriteSerializer,
 )
 from .utils import code_generator
+from reviews.models import Category, Genre, Title
 from users.models import User
 
 CODE_EMAIL = "confirmation_code@yamdb.yandex"
@@ -117,9 +134,83 @@ class UserViewSet(viewsets.ModelViewSet):
         if request.method == "GET":
             serializer = ProfileSerializer(request.user)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        serializer = ProfileSerializer(
-            request.user, data=request.data, partial=True
-        )
+        serializer = ProfileSerializer(request.user, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    """
+    Для админа и суперпользователя GET, GET-list, POST, PATCH, DELETE.
+    Для анонима GET, GET-list.
+    """
+
+    queryset = Title.objects.all()
+    serializer_class = TitleReadSerializer
+    permission_classes = (AdminOrSuperuserOnly,)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitleFilter
+    pagination_class = pagination.PageNumberPagination
+
+    def get_permissions(self):
+        if self.action == "retrieve" or self.action == "list":
+            return (ReadOnly(),)
+        return super().get_permissions()
+
+    def get_serializer_class(self):
+        if self.action == "retrieve" or self.action == "list":
+            return TitleReadSerializer
+        return TitleWriteSerializer
+
+
+class CategoryViewSet(ListCreateDeleteViewSet):
+    """
+    Для админа и суперпользователя GET-list, POST, DELETE.
+    Для анонима GET-list.
+    """
+
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    lookup_field = "slug"
+    permission_classes = (AdminOrSuperuserOnly,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ("name",)
+
+    def retrieve(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+        except Http404:
+            return Response("Item does not exist", status.HTTP_405_METHOD_NOT_ALLOWED)
+        return Response("Item already exists", status.HTTP_400_BAD_REQUEST)
+
+    def get_permissions(self):
+        if self.action == "list":
+            return (ReadOnly(),)
+        return super().get_permissions()
+
+
+class GenreViewSet(ListCreateDeleteViewSet):
+    """
+    Для админа и суперпользователя GET-list, POST, DELETE.
+    Для анонима GET-list.
+    """
+
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    lookup_field = "slug"
+    permission_classes = (AdminOrSuperuserOnly,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ("name",)
+
+    def retrieve(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+        except Http404:
+            return Response("Item does not exist", status.HTTP_405_METHOD_NOT_ALLOWED)
+        return Response("Item already exists", status.HTTP_400_BAD_REQUEST)
+
+    def get_permissions(self):
+        if self.action == "list":
+            return (ReadOnly(),)
+        return super().get_permissions()
