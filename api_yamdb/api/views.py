@@ -1,15 +1,10 @@
-from django.shortcuts import get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
 from django.http import Http404
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import (
-    decorators,
-    filters,
-    pagination,
-    permissions,
-    status,
-    viewsets,
+    decorators, filters, pagination, permissions, status, viewsets,
 )
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -18,24 +13,15 @@ from rest_framework_simplejwt.tokens import AccessToken
 from .filters import TitleFilter
 from .mixins import ListCreateDeleteViewSet
 from .permissions import (
-    AdminOrSuperuserOnly,
-    ReadOnly,
-    SafeOrAuthorOrExceedingRoleOnly,
+    AdminOrSuperuserOnly, ReadOnly, SafeOrAuthorOrExceedingRoleOnly,
 )
 from .serializers import (
-    AdminSerializer,
-    CategorySerializer,
-    GenreSerializer,
-    GetJWTokenSerializer,
-    ProfileSerializer,
-    SignUpSerializer,
-    TitleReadSerializer,
-    TitleWriteSerializer,
-    ReviewSerializer,
-    CommentSerializer,
+    AdminSerializer, CategorySerializer, CommentSerializer, GenreSerializer,
+    GetJWTokenSerializer, ProfileSerializer, ReviewSerializer,
+    SignUpSerializer, TitleReadSerializer, TitleWriteSerializer,
 )
 from .utils import code_generator
-from reviews.models import Category, Genre, Title, Review
+from reviews.models import Category, Genre, Review, Title
 from users.models import User
 
 CODE_EMAIL = "confirmation_code@yamdb.yandex"
