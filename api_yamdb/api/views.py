@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
 from django.http import Http404
@@ -16,7 +17,11 @@ from rest_framework_simplejwt.tokens import AccessToken
 
 from .filters import TitleFilter
 from .mixins import ListCreateDeleteViewSet
-from .permissions import AdminOrSuperuserOnly, ReadOnly
+from .permissions import (
+    AdminOrSuperuserOnly,
+    ReadOnly,
+    SafeOrAuthorOrExceedingRoleOnly,
+)
 from .serializers import (
     AdminSerializer,
     CategorySerializer,
@@ -26,9 +31,11 @@ from .serializers import (
     SignUpSerializer,
     TitleReadSerializer,
     TitleWriteSerializer,
+    ReviewSerializer,
+    CommentSerializer,
 )
 from .utils import code_generator
-from reviews.models import Category, Genre, Title
+from reviews.models import Category, Genre, Title, Review
 from users.models import User
 
 CODE_EMAIL = "confirmation_code@yamdb.yandex"
@@ -134,7 +141,9 @@ class UserViewSet(viewsets.ModelViewSet):
         if request.method == "GET":
             serializer = ProfileSerializer(request.user)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        serializer = ProfileSerializer(request.user, data=request.data, partial=True)
+        serializer = ProfileSerializer(
+            request.user, data=request.data, partial=True
+        )
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -181,7 +190,9 @@ class CategoryViewSet(ListCreateDeleteViewSet):
         try:
             instance = self.get_object()
         except Http404:
-            return Response("Item does not exist", status.HTTP_405_METHOD_NOT_ALLOWED)
+            return Response(
+                "Item does not exist", status.HTTP_405_METHOD_NOT_ALLOWED
+            )
         return Response("Item already exists", status.HTTP_400_BAD_REQUEST)
 
     def get_permissions(self):
@@ -207,10 +218,65 @@ class GenreViewSet(ListCreateDeleteViewSet):
         try:
             instance = self.get_object()
         except Http404:
-            return Response("Item does not exist", status.HTTP_405_METHOD_NOT_ALLOWED)
+            return Response(
+                "Item does not exist", status.HTTP_405_METHOD_NOT_ALLOWED
+            )
         return Response("Item already exists", status.HTTP_400_BAD_REQUEST)
 
     def get_permissions(self):
         if self.action == "list":
             return (ReadOnly(),)
         return super().get_permissions()
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    """
+    Для админа и суперпользователя GET, GET-list, POST, PATCH, DELETE.
+    Для анонима GET, GET-list.
+    Комбинация полей author и title уникальна для каждого Review.
+    """
+
+    serializer_class = ReviewSerializer
+    permission_classes = (SafeOrAuthorOrExceedingRoleOnly,)
+    pagination_class = pagination.PageNumberPagination
+
+    def get_title(self):
+        return get_object_or_404(Title, id=self.kwargs["title_id"])
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user, title=self.get_title())
+
+    def get_queryset(self):
+        title = self.get_title()
+        return title.reviews.all()
+
+    def create(self, request, *args, **kwargs):
+        author = self.request.user
+        title = self.get_title()
+        if Review.objects.filter(author=author, title=title).exists():
+            return Response(
+                {"title": "Вы уже оставляли отзыв на это произведение"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        return super().create(request, *args, **kwargs)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    """
+    Для админа и суперпользователя GET, GET-list, POST, PATCH, DELETE.
+    Для анонима GET, GET-list.
+    """
+
+    serializer_class = CommentSerializer
+    permission_classes = (SafeOrAuthorOrExceedingRoleOnly,)
+    pagination_class = pagination.PageNumberPagination
+
+    def get_review(self):
+        return get_object_or_404(Review, id=self.kwargs["review_id"])
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user, review=self.get_review())
+
+    def get_queryset(self):
+        review = self.get_review()
+        return review.comments.all()
