@@ -233,6 +233,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     """
     Для админа и суперпользователя GET, GET-list, POST, PATCH, DELETE.
     Для анонима GET, GET-list.
+    Комбинация полей author и title уникальна для каждого Review.
     """
 
     serializer_class = ReviewSerializer

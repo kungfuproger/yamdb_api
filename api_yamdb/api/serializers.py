@@ -147,7 +147,7 @@ class TitleReadSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    """Серилизатор отзывов. Отзыв уникален для комбинации author, title"""
+    """Серилизатор отзывов."""
 
     author = serializers.SlugRelatedField(
         slug_field="username", read_only=True
