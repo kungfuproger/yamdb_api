@@ -8,6 +8,11 @@ class AdminOrSuperuserOnly(permissions.BasePermission):
         )
 
 
+class ReadOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.method in permissions.SAFE_METHODS
+
+
 class SafeOrAuthorOrExceedingRoleOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         return (
@@ -21,7 +26,6 @@ class SafeOrAuthorOrExceedingRoleOnly(permissions.BasePermission):
             or obj.author == request.user
             or request.user.is_moderator()
             or request.user.is_admin()
-            or request.user.is_superuser()
         )
 
 

@@ -1,19 +1,7 @@
 # api_yamdb
-api_yamdb
-
-добавлено
-djangorestframework-simplejwt==4.7.2
-
-сейчас емейлы сохраняются в папку api_yamdb\sent_emails
-так что confirmation_code получать пока что там
-
-## пока что у нас стоит в settings 
-значит всем все доступно
-REST_FRAMEWORK = {
-    "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.AllowAny",
-    ],
-
+Проект YaMDb собирает отзывы (Review) пользователей на произведения (Title).
+Произведения делятся на категории(Category).
+У произведений есть жанры(Genres).
 
 ### Регистрация нового пользователя
 Получить код подтверждения на переданный email.
@@ -39,6 +27,28 @@ Content-Type: application/json
         "username": "string",
         "confirmation_code": "string"
         }
+
+
+### API
+# Эндпоинты:
+ CATEGORIES
+`/api/v1/categories/`
+ GENRES
+`/api/v1/genres/`
+ TITLES
+`/api/v1/titles/`
+`/api/v1/titles/{titles_id}/`
+ REVIEWS
+`/api/v1/titles/{title_id}/reviews/`
+`/api/v1/titles/{title_id}/reviews/{review_id}/`
+ COMMENTS
+`/api/v1/titles/{title_id}/reviews/{review_id}/comments/`
+`/api/v1/titles/{title_id}/reviews/{review_id}/comments/{comment_id}/`
+ USERS
+`/api/v1/users/`
+`/api/v1/users/{username}/`
+
+Полная информация по запросам доступна в документации: `/redoc/`
 
 
 ### Management-команда import_csv
