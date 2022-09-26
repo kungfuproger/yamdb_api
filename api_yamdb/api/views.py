@@ -1,15 +1,8 @@
-from django.shortcuts import get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.mail import send_mail
-from django.http import Http404
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import (
-    decorators,
-    filters,
-    pagination,
-    permissions,
-    status,
-    viewsets,
+    decorators, filters, pagination, permissions, status, viewsets,
 )
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -18,24 +11,15 @@ from rest_framework_simplejwt.tokens import AccessToken
 from .filters import TitleFilter
 from .mixins import ListCreateDeleteViewSet
 from .permissions import (
-    AdminOrSuperuserOnly,
-    ReadOnly,
-    SafeOrAuthorOrExceedingRoleOnly,
+    AdminOrSuperuserOnly, ReadOnly, SafeOrAuthorOrExceedingRoleOnly,
 )
 from .serializers import (
-    AdminSerializer,
-    CategorySerializer,
-    GenreSerializer,
-    GetJWTokenSerializer,
-    ProfileSerializer,
-    SignUpSerializer,
-    TitleReadSerializer,
-    TitleWriteSerializer,
-    ReviewSerializer,
-    CommentSerializer,
+    AdminSerializer, CategorySerializer, CommentSerializer, GenreSerializer,
+    GetJWTokenSerializer, ProfileSerializer, ReviewSerializer,
+    SignUpSerializer, TitleReadSerializer, TitleWriteSerializer,
 )
-from .utils import code_generator
-from reviews.models import Category, Genre, Title, Review
+from .utils import code_sender
+from reviews.models import Category, Genre, Review, Title
 from users.models import User
 
 CODE_EMAIL = "confirmation_code@yamdb.yandex"
@@ -97,23 +81,22 @@ class SignUpView(APIView):
     """
 
     def post(self, request):
-        serializer = SignUpSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        code = code_generator(10)
-        # создаем нового юзера
-        user = serializer.save()
-        user.confirmation_code = code
-        user.save()
 
-        send_mail(
-            "Api_Yamdb confirmation_code",
-            f"confirmation_code: {code}",
-            CODE_EMAIL,
-            [user.email],
-            fail_silently=False,
-        )
+        try:
+            user = User.objects.get(
+                username=request.data["username"],
+                email=request.data["email"],
+            )
+            output = request.data
+            code_sender(user)
+        except (ObjectDoesNotExist, KeyError):
+            serializer = SignUpSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            user = serializer.save()
+            output = serializer.data
+            code_sender(user)
         return Response(
-            serializer.data,
+            output,
             status=status.HTTP_200_OK,
         )
 
@@ -157,15 +140,10 @@ class TitleViewSet(viewsets.ModelViewSet):
 
     queryset = Title.objects.all()
     serializer_class = TitleReadSerializer
-    permission_classes = (AdminOrSuperuserOnly,)
+    permission_classes = (AdminOrSuperuserOnly | ReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
     pagination_class = pagination.PageNumberPagination
-
-    def get_permissions(self):
-        if self.action == "retrieve" or self.action == "list":
-            return (ReadOnly(),)
-        return super().get_permissions()
 
     def get_serializer_class(self):
         if self.action == "retrieve" or self.action == "list":
@@ -182,23 +160,9 @@ class CategoryViewSet(ListCreateDeleteViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     lookup_field = "slug"
-    permission_classes = (AdminOrSuperuserOnly,)
+    permission_classes = (AdminOrSuperuserOnly | ReadOnly,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ("name",)
-
-    def retrieve(self, request, *args, **kwargs):
-        try:
-            instance = self.get_object()
-        except Http404:
-            return Response(
-                "Item does not exist", status.HTTP_405_METHOD_NOT_ALLOWED
-            )
-        return Response("Item already exists", status.HTTP_400_BAD_REQUEST)
-
-    def get_permissions(self):
-        if self.action == "list":
-            return (ReadOnly(),)
-        return super().get_permissions()
 
 
 class GenreViewSet(ListCreateDeleteViewSet):
@@ -210,23 +174,9 @@ class GenreViewSet(ListCreateDeleteViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     lookup_field = "slug"
-    permission_classes = (AdminOrSuperuserOnly,)
+    permission_classes = (AdminOrSuperuserOnly | ReadOnly,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ("name",)
-
-    def retrieve(self, request, *args, **kwargs):
-        try:
-            instance = self.get_object()
-        except Http404:
-            return Response(
-                "Item does not exist", status.HTTP_405_METHOD_NOT_ALLOWED
-            )
-        return Response("Item already exists", status.HTTP_400_BAD_REQUEST)
-
-    def get_permissions(self):
-        if self.action == "list":
-            return (ReadOnly(),)
-        return super().get_permissions()
 
 
 class ReviewViewSet(viewsets.ModelViewSet):

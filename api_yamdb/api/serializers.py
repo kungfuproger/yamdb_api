@@ -1,9 +1,7 @@
 from rest_framework import serializers
-from reviews.models import Comment, Review
 
-from reviews.models import Category, Genre, Title, GenresTitles
+from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
-
 
 USER_FIELDS = (
     "username",
@@ -12,6 +10,16 @@ USER_FIELDS = (
     "last_name",
     "bio",
     "role",
+)
+
+TITLE_FIELDS = (
+    "id",
+    "name",
+    "year",
+    "rating",
+    "description",
+    "genre",
+    "category",
 )
 
 
@@ -86,15 +94,7 @@ class TitleWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = (
-            "id",
-            "name",
-            "year",
-            "rating",
-            "description",
-            "genre",
-            "category",
-        )
+        fields = TITLE_FIELDS
         read_only_fields = ("id", "rating")
 
 
@@ -106,44 +106,7 @@ class TitleReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = (
-            "id",
-            "name",
-            "year",
-            "rating",
-            "description",
-            "genre",
-            "category",
-        )
-
-    def create(self, validated_data):
-        genres = validated_data.pop("genre")
-        title = Title.objects.create(**validated_data)
-
-        for genre in genres:
-            current_genre, status = Genre.objects.get_or_create(**genre)
-            GenresTitles.objects.create(genre=current_genre, title=title)
-
-        return title
-
-    def update(self, instance, validated_data):
-        instance.name = validated_data.get("name", instance.name)
-        instance.year = validated_data.get("year", instance.year)
-        instance.description = validated_data.get(
-            "description", instance.description
-        )
-        instance.category = validated_data.get("category", instance.category)
-
-        if "genre" in validated_data:
-            genres = validated_data.pop("genre")
-            lst = []
-            for genre in genres:
-                current_genre, status = Genre.objects.get_or_create(**genre)
-                lst.append(current_genre)
-            instance.genre.set(lst)
-
-        instance.save()
-        return instance
+        fields = TITLE_FIELDS
 
 
 class ReviewSerializer(serializers.ModelSerializer):
