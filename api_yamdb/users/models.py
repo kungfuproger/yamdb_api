@@ -24,7 +24,8 @@ class User(AbstractUser):
         unique=True,
         blank=False,
         null=False,
-        help_text="Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only. Can't be 'me'.",
+        help_text="Required. 150 characters or fewer. "
+        "Letters, digits and @/./+/-/_ only. Can't be 'me'.",
         validators=(custom_username_validator, UnicodeUsernameValidator),
         error_messages={
             "unique": "A user with that username already exists.",
@@ -65,12 +66,12 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
-
+    @property
     def is_admin(self):
         return self.role == ADMIN
-
+    @property
     def is_moderator(self):
         return self.role == MODERATOR
-
+    @property
     def is_user(self):
         return self.role == USER
