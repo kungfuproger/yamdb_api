@@ -14,6 +14,8 @@ ROLES = (
     (ADMIN, ADMIN),
 )
 
+CODE_DEFAULT = "0000"
+
 
 class User(AbstractUser):
     """Модель пользователя."""
@@ -58,7 +60,7 @@ class User(AbstractUser):
         max_length=255,
         blank=False,
         null=True,
-        default="0000",
+        default=CODE_DEFAULT,
     )
 
     class Meta:
