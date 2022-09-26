@@ -143,15 +143,10 @@ class TitleViewSet(viewsets.ModelViewSet):
 
     queryset = Title.objects.all()
     serializer_class = TitleReadSerializer
-    permission_classes = (AdminOrSuperuserOnly,)
+    permission_classes = (AdminOrSuperuserOnly | ReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
     pagination_class = pagination.PageNumberPagination
-
-    def get_permissions(self):
-        if self.action == "retrieve" or self.action == "list":
-            return (ReadOnly(),)
-        return super().get_permissions()
 
     def get_serializer_class(self):
         if self.action == "retrieve" or self.action == "list":
@@ -168,23 +163,9 @@ class CategoryViewSet(ListCreateDeleteViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     lookup_field = "slug"
-    permission_classes = (AdminOrSuperuserOnly,)
+    permission_classes = (AdminOrSuperuserOnly | ReadOnly,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ("name",)
-
-    def retrieve(self, request, *args, **kwargs):
-        try:
-            instance = self.get_object()
-        except Http404:
-            return Response(
-                "Item does not exist", status.HTTP_405_METHOD_NOT_ALLOWED
-            )
-        return Response("Item already exists", status.HTTP_400_BAD_REQUEST)
-
-    def get_permissions(self):
-        if self.action == "list":
-            return (ReadOnly(),)
-        return super().get_permissions()
 
 
 class GenreViewSet(ListCreateDeleteViewSet):
@@ -196,23 +177,9 @@ class GenreViewSet(ListCreateDeleteViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     lookup_field = "slug"
-    permission_classes = (AdminOrSuperuserOnly,)
+    permission_classes = (AdminOrSuperuserOnly | ReadOnly,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ("name",)
-
-    def retrieve(self, request, *args, **kwargs):
-        try:
-            instance = self.get_object()
-        except Http404:
-            return Response(
-                "Item does not exist", status.HTTP_405_METHOD_NOT_ALLOWED
-            )
-        return Response("Item already exists", status.HTTP_400_BAD_REQUEST)
-
-    def get_permissions(self):
-        if self.action == "list":
-            return (ReadOnly(),)
-        return super().get_permissions()
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
