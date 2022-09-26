@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
 from reviews.models import Comment, Review
 
 from reviews.models import Category, Genre, Title, GenresTitles
@@ -53,6 +52,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = USER_FIELDS
         read_only_fields = ("role",)
+
 
 class CategorySerializer(serializers.ModelSerializer):
     """Сериализатор модели категории."""

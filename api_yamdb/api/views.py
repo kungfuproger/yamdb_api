@@ -17,7 +17,6 @@ from rest_framework_simplejwt.tokens import AccessToken
 
 from .filters import TitleFilter
 from .mixins import ListCreateDeleteViewSet
-from .permissions import AdminOrSuperuserOnly, ReadOnly
 from .permissions import (
     AdminOrSuperuserOnly,
     ReadOnly,
@@ -32,21 +31,12 @@ from .serializers import (
     SignUpSerializer,
     TitleReadSerializer,
     TitleWriteSerializer,
-)
-
-from .permissions import AdminOrSuperuserOnly, SafeOrAuthorOrExceedingRoleOnly
-from .serializers import (
-    AdminSerializer,
-    GetJWTokenSerializer,
-    ProfileSerializer,
-    SignUpSerializer,
     ReviewSerializer,
     CommentSerializer,
 )
 from .utils import code_generator
-from reviews.models import Category, Genre, Title
+from reviews.models import Category, Genre, Title, Review
 from users.models import User
-from reviews.models import Title, Review
 
 CODE_EMAIL = "confirmation_code@yamdb.yandex"
 
@@ -240,7 +230,10 @@ class GenreViewSet(ListCreateDeleteViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    """Обработчик отзывов."""
+    """
+    Для админа и суперпользователя GET, GET-list, POST, PATCH, DELETE.
+    Для анонима GET, GET-list.
+    """
 
     serializer_class = ReviewSerializer
     permission_classes = (SafeOrAuthorOrExceedingRoleOnly,)
@@ -268,7 +261,10 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    """Обработчик комментарий."""
+    """
+    Для админа и суперпользователя GET, GET-list, POST, PATCH, DELETE.
+    Для анонима GET, GET-list.
+    """
 
     serializer_class = CommentSerializer
     permission_classes = (SafeOrAuthorOrExceedingRoleOnly,)

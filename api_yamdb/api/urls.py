@@ -8,9 +8,6 @@ from .views import (
     TitleViewSet,
     UserViewSet,
     GenreViewSet,
-    GetJWTokenView,
-    SignUpView,
-    UserViewSet,
     ReviewViewSet,
     CommentViewSet,
 )
