@@ -1,6 +1,4 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.mail import send_mail
-from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import (
@@ -20,7 +18,7 @@ from .serializers import (
     GetJWTokenSerializer, ProfileSerializer, ReviewSerializer,
     SignUpSerializer, TitleReadSerializer, TitleWriteSerializer,
 )
-from .utils import code_generator
+from .utils import code_sender
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
 
@@ -83,23 +81,22 @@ class SignUpView(APIView):
     """
 
     def post(self, request):
-        serializer = SignUpSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        code = code_generator(10)
-        # создаем нового юзера
-        user = serializer.save()
-        user.confirmation_code = code
-        user.save()
 
-        send_mail(
-            "Api_Yamdb confirmation_code",
-            f"confirmation_code: {code}",
-            CODE_EMAIL,
-            [user.email],
-            fail_silently=False,
-        )
+        try:
+            user = User.objects.get(
+                username=request.data["username"],
+                email=request.data["email"],
+            )
+            output = request.data
+            code_sender(user)
+        except (ObjectDoesNotExist, KeyError):
+            serializer = SignUpSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            user = serializer.save()
+            output = serializer.data
+            code_sender(user)
         return Response(
-            serializer.data,
+            output,
             status=status.HTTP_200_OK,
         )
 
