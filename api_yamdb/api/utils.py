@@ -1,9 +1,10 @@
 import string
 from random import choice, shuffle
 
-CODE_EMAIL = "confirmation_code@yamdb.yandex"
 from django.core.mail import send_mail
 
+
+CODE_EMAIL = "confirmation_code@yamdb.yandex"
 
 def code_generator(length):
     """Возвращает код заданой длинны."""

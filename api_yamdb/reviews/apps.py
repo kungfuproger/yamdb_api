@@ -6,3 +6,4 @@ class ReviewsConfig(AppConfig):
 
     def ready(self):
         from . import signals
+        signals
