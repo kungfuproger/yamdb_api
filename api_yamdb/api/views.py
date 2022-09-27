@@ -1,3 +1,4 @@
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -43,6 +44,7 @@ class GetJWTokenView(APIView):
         serializer = GetJWTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
+
         try:
             user = User.objects.get(username=data["username"])
         except ObjectDoesNotExist:
@@ -52,7 +54,10 @@ class GetJWTokenView(APIView):
                 },
                 status=status.HTTP_404_NOT_FOUND,
             )
-        if user.confirmation_code != data["confirmation_code"]:
+
+        if not PasswordResetTokenGenerator().check_token(
+            user, data["confirmation_code"]
+        ):
             return Response(
                 {"confirmation_code": "Wrong confirmation_code"},
                 status=status.HTTP_400_BAD_REQUEST,
