@@ -55,19 +55,19 @@ class GetJWTokenView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        if not PasswordResetTokenGenerator().check_token(
+        if PasswordResetTokenGenerator().check_token(
             user, data["confirmation_code"]
         ):
+            token = AccessToken.for_user(user)
             return Response(
-                {"confirmation_code": "Wrong confirmation_code"},
-                status=status.HTTP_400_BAD_REQUEST,
+                {
+                    "token": str(token),
+                },
+                status=status.HTTP_201_CREATED,
             )
-        token = AccessToken.for_user(user)
         return Response(
-            {
-                "token": str(token),
-            },
-            status=status.HTTP_201_CREATED,
+            {"confirmation_code": "Wrong confirmation_code"},
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
 
