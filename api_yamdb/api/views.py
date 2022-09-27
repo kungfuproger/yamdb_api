@@ -1,9 +1,8 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import (
-    decorators, filters, pagination, permissions, status, viewsets,
-)
+from rest_framework import filters, pagination, permissions, status, viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
@@ -114,16 +113,18 @@ class UserViewSet(viewsets.ModelViewSet):
     pagination_class = pagination.PageNumberPagination
     search_fields = ("username",)
 
-    @decorators.action(
-        methods=("get", "patch"),
+    @action(
+        methods=("get",),
         detail=False,
         url_path="me",
         permission_classes=(permissions.IsAuthenticated,),
     )
     def profile(self, request):
-        if request.method == "GET":
-            serializer = ProfileSerializer(request.user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = ProfileSerializer(request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @profile.mapping.patch
+    def update_profile(self, request):
         serializer = ProfileSerializer(
             request.user, data=request.data, partial=True
         )
