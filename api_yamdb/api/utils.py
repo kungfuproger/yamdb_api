@@ -4,7 +4,7 @@ CODE_EMAIL = "confirmation_code@yamdb.yandex"
 from django.core.mail import send_mail
 
 
-def code_sender(user):
+def send_code(user):
     """Генерирует и отправляет код заданому юзеру."""
     code = PasswordResetTokenGenerator().make_token(user)
     send_mail(
