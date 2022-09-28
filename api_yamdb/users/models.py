@@ -53,12 +53,6 @@ class User(AbstractUser):
         max_length=20,
         default=USER,
     )
-    confirmation_code = models.CharField(
-        "код подтверждения",
-        max_length=255,
-        blank=False,
-        null=True,
-    )
 
     class Meta:
         ordering = ["-id"]
