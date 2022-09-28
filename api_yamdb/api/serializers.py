@@ -38,8 +38,16 @@ class SignUpSerializer(serializers.ModelSerializer):
     """Сериалайзер самостоятельной подписки."""
 
     class Meta:
+
         model = User
         fields = ("email", "username")
+
+
+class GetCodeSerializer(serializers.Serializer):
+    """Для получения токена, уже зарегестрированными пользователями."""
+
+    username = serializers.CharField(required=True)
+    email = serializers.EmailField(required=True)
 
 
 class AdminSerializer(serializers.ModelSerializer):

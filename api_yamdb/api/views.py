@@ -15,10 +15,11 @@ from .permissions import (
 )
 from .serializers import (
     AdminSerializer, CategorySerializer, CommentSerializer, GenreSerializer,
-    GetJWTokenSerializer, ProfileSerializer, ReviewSerializer,
-    SignUpSerializer, TitleReadSerializer, TitleWriteSerializer,
+    GetCodeSerializer, GetJWTokenSerializer, ProfileSerializer,
+    ReviewSerializer, SignUpSerializer, TitleReadSerializer,
+    TitleWriteSerializer,
 )
-from .utils import code_sender
+from .utils import send_code
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
 
@@ -39,6 +40,8 @@ class GetJWTokenView(APIView):
         "token": "string"
         }
     """
+
+    permission_classes = (permissions.AllowAny,)
 
     def post(self, request):
         serializer = GetJWTokenSerializer(data=request.data)
@@ -84,23 +87,26 @@ class SignUpView(APIView):
     }
     """
 
-    def post(self, request):
+    permission_classes = (permissions.AllowAny,)
 
+    def post(self, request):
+        serializer = GetCodeSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
         try:
             user = User.objects.get(
-                username=request.data["username"],
-                email=request.data["email"],
+                username=data["username"],
+                email=data["email"],
             )
-            output = request.data
-            code_sender(user)
-        except (ObjectDoesNotExist, KeyError):
+
+        except ObjectDoesNotExist:
             serializer = SignUpSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             user = serializer.save()
-            output = serializer.data
-            code_sender(user)
+
+        send_code(user)
         return Response(
-            output,
+            serializer.data,
             status=status.HTTP_200_OK,
         )
 
