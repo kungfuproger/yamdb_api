@@ -1,4 +1,3 @@
-from pprint import pprint
 from django.core.management.base import BaseCommand
 from csv import DictReader
 
@@ -54,7 +53,6 @@ class Command(BaseCommand):
                     else:
                         kwargs[field] = value
                 models.append(model(**kwargs))
-            pprint(models)
             model.objects.bulk_create(models)
             print('Successfully imported file "%s"' % csv_file)
 
@@ -66,5 +64,4 @@ class Command(BaseCommand):
                 importer(csv_file, model)
         else:
             for csv_file, model in FILE_MODEL.items():
-                print(csv_file, model)
                 importer(csv_file, model)
