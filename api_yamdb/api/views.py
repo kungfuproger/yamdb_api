@@ -1,5 +1,6 @@
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, pagination, permissions, status, viewsets
@@ -19,7 +20,6 @@ from .serializers import (
     ReviewSerializer, SignUpSerializer, TitleReadSerializer,
     TitleWriteSerializer,
 )
-from .utils import send_code
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
 
@@ -104,7 +104,15 @@ class SignUpView(APIView):
             serializer.is_valid(raise_exception=True)
             user = serializer.save()
 
-        send_code(user)
+        code = PasswordResetTokenGenerator().make_token(user)
+        send_mail(
+            "Api_Yamdb confirmation_code",
+            f"confirmation_code: {code}",
+            CODE_EMAIL,
+            [user.email],
+            fail_silently=False,
+        )
+
         return Response(
             serializer.data,
             status=status.HTTP_200_OK,
