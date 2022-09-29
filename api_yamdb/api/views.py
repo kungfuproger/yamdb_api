@@ -1,4 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import models
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import (
@@ -138,7 +139,9 @@ class TitleViewSet(viewsets.ModelViewSet):
     Для анонима GET, GET-list.
     """
 
-    queryset = Title.objects.all()
+    queryset = Title.objects.annotate(
+        rating=models.Avg("reviews__score")
+    ).order_by("id")
     serializer_class = TitleReadSerializer
     permission_classes = (AdminOrSuperuserOnly | ReadOnly,)
     filter_backends = (DjangoFilterBackend,)

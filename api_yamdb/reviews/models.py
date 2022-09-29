@@ -1,8 +1,8 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from .validators import custom_year_validator
 from users.models import User
+from .validators import custom_year_validator
 
 
 class Category(models.Model):
@@ -53,11 +53,12 @@ class Title(models.Model):
     name = models.CharField(
         "название",
         max_length=200,
+        unique=True,
     )
     year = models.PositiveIntegerField(
-        "год выпуска", validators=(custom_year_validator,)
+        "год выпуска",
+        validators=(custom_year_validator,)
     )
-    rating = models.IntegerField("рейтинг", default=None, null=True)
     description = models.TextField(
         "описание",
     )
@@ -74,9 +75,6 @@ class Title(models.Model):
         on_delete=models.SET_NULL,
         related_name="titles",
     )
-
-    class Meta:
-        ordering = ["id"]
 
     def __str__(self):
         return self.name
