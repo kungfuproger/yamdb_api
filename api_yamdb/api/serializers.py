@@ -112,25 +112,25 @@ class TitleReadSerializer(serializers.ModelSerializer):
         model = Title
         fields = TITLE_FIELDS
 
+
 class CurrentTitleDefault:
-    """
-    May be applied as a `default=...` value on a serializer field.
-    Returns the current user.
-    """
+    """Получение тайтла из параметров url запроса"""
+
     requires_context = True
 
     def __call__(self, serializer_field):
-        return serializer_field.context['view'].kwargs['title_id']
+        return serializer_field.context["view"].kwargs["title_id"]
 
 
 class ReviewSerializer(serializers.ModelSerializer):
     """Серилизатор отзывов."""
 
     author = serializers.SlugRelatedField(
-        slug_field="username", read_only=True, default=serializers.CurrentUserDefault()
+        slug_field="username",
+        read_only=True,
+        default=serializers.CurrentUserDefault(),
     )
     title = serializers.HiddenField(default=CurrentTitleDefault())
-
 
     class Meta:
         model = Review
@@ -138,8 +138,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
         validators = [
             UniqueTogetherValidator(
-                queryset=Review.objects.all(),
-                fields=('author', 'title')
+                queryset=Review.objects.all(), fields=("author", "title")
             )
         ]
 
