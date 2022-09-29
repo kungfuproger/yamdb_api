@@ -120,7 +120,12 @@ class Review(models.Model):
     class Meta:
         ordering = ["-pub_date"]
         verbose_name = "Отзывы"
-        unique_together = ("author", "title")
+        constraints = [
+            models.UniqueConstraint(
+                fields=['author', 'title'],
+                name='unique_author_title'
+            )
+        ]
 
     def __str__(self):
         return f"Отзыв {self.author} на произведение {self.title}"

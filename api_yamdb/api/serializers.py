@@ -1,4 +1,8 @@
 from rest_framework import serializers
+from django.shortcuts import get_object_or_404
+from rest_framework.response import Response
+from rest_framework.validators import UniqueTogetherValidator
+from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
@@ -108,17 +112,36 @@ class TitleReadSerializer(serializers.ModelSerializer):
         model = Title
         fields = TITLE_FIELDS
 
+class CurrentTitleDefault:
+    """
+    May be applied as a `default=...` value on a serializer field.
+    Returns the current user.
+    """
+    requires_context = True
+
+    def __call__(self, serializer_field):
+        return serializer_field.context['view'].kwargs['title_id']
+
 
 class ReviewSerializer(serializers.ModelSerializer):
     """Серилизатор отзывов."""
 
     author = serializers.SlugRelatedField(
-        slug_field="username", read_only=True
+        slug_field="username", read_only=True, default=serializers.CurrentUserDefault()
     )
+    title = serializers.HiddenField(default=CurrentTitleDefault())
+
 
     class Meta:
         model = Review
-        fields = ("id", "text", "author", "score", "pub_date")
+        fields = ("id", "text", "author", "score", "pub_date", "title")
+
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Review.objects.all(),
+                fields=('author', 'title')
+            )
+        ]
 
 
 class CommentSerializer(serializers.ModelSerializer):
