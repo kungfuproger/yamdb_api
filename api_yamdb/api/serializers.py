@@ -1,8 +1,5 @@
 from rest_framework import serializers
-from django.shortcuts import get_object_or_404
-from rest_framework.response import Response
 from rest_framework.validators import UniqueTogetherValidator
-from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
