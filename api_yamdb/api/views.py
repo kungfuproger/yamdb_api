@@ -146,7 +146,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     pagination_class = pagination.PageNumberPagination
 
     def get_serializer_class(self):
-        if self.action == "retrieve" or self.action == "list":
+        if self.action in ("retrieve", "list"):
             return TitleReadSerializer
         return TitleWriteSerializer
 
