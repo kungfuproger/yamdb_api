@@ -1,8 +1,7 @@
-from turtle import title
-
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
+from django.db import models
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, pagination, permissions, status, viewsets
@@ -160,7 +159,9 @@ class TitleViewSet(viewsets.ModelViewSet):
     Для анонима GET, GET-list.
     """
 
-    queryset = Title.objects.all()
+    queryset = Title.objects.annotate(
+        rating=models.Avg("reviews__score")
+    ).order_by("id")
     serializer_class = TitleReadSerializer
     permission_classes = (AdminOrSuperuserOnly | ReadOnly,)
     filter_backends = (DjangoFilterBackend,)
@@ -168,7 +169,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     pagination_class = pagination.PageNumberPagination
 
     def get_serializer_class(self):
-        if self.action == "retrieve" or self.action == "list":
+        if self.action in ("retrieve", "list"):
             return TitleReadSerializer
         return TitleWriteSerializer
 
