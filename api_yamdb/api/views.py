@@ -215,22 +215,12 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def get_title(self):
         return get_object_or_404(Title, id=self.kwargs["title_id"])
 
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user, title=self.get_title())
-
     def get_queryset(self):
         title = self.get_title()
         return title.reviews.all()
 
-    def create(self, request, *args, **kwargs):
-        author = self.request.user
-        title = self.get_title()
-        if Review.objects.filter(author=author, title=title).exists():
-            return Response(
-                {"title": "Вы уже оставляли отзыв на это произведение"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        return super().create(request, *args, **kwargs)
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user, title=self.get_title())
 
 
 class CommentViewSet(viewsets.ModelViewSet):

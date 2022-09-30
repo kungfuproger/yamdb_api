@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
@@ -117,16 +118,34 @@ class TitleReadSerializer(serializers.ModelSerializer):
         fields = TITLE_FIELDS
 
 
+class CurrentTitleDefault:
+    """Получение тайтла из параметров url запроса"""
+
+    requires_context = True
+
+    def __call__(self, serializer_field):
+        return serializer_field.context["view"].kwargs["title_id"]
+
+
 class ReviewSerializer(serializers.ModelSerializer):
     """Серилизатор отзывов."""
 
     author = serializers.SlugRelatedField(
-        slug_field="username", read_only=True
+        slug_field="username",
+        read_only=True,
+        default=serializers.CurrentUserDefault(),
     )
+    title = serializers.HiddenField(default=CurrentTitleDefault())
 
     class Meta:
         model = Review
-        fields = ("id", "text", "author", "score", "pub_date")
+        fields = ("id", "text", "author", "score", "pub_date", "title")
+
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Review.objects.all(), fields=("author", "title")
+            )
+        ]
 
 
 class CommentSerializer(serializers.ModelSerializer):
