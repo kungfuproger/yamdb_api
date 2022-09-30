@@ -159,9 +159,11 @@ class TitleViewSet(viewsets.ModelViewSet):
     Для анонима GET, GET-list.
     """
 
-    queryset = Title.objects.prefetch_related("title_genre", "category").annotate(
-        rating=models.Avg("reviews__score")
-    ).order_by("id")
+    queryset = (
+        Title.objects.prefetch_related("title_genre", "category")
+        .annotate(rating=models.Avg("reviews__score"))
+        .order_by("id")
+    )
     print(queryset)
     serializer_class = TitleReadSerializer
     permission_classes = (AdminOrSuperuserOnly | ReadOnly,)
