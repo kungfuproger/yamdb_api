@@ -164,7 +164,6 @@ class TitleViewSet(viewsets.ModelViewSet):
         .annotate(rating=models.Avg("reviews__score"))
         .order_by("id")
     )
-    print(queryset)
     serializer_class = TitleReadSerializer
     permission_classes = (AdminOrSuperuserOnly | ReadOnly,)
     filter_backends = (DjangoFilterBackend,)
