@@ -1,8 +1,8 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from users.models import User
 from .validators import custom_year_validator
+from users.models import User
 
 
 class Category(models.Model):
@@ -83,8 +83,8 @@ class Title(models.Model):
 class GenresTitles(models.Model):
     """Модель для связи title_id & genre_id."""
 
-    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
-    title = models.ForeignKey(Title, on_delete=models.CASCADE)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE, related_name="genre_title")
+    title = models.ForeignKey(Title, on_delete=models.CASCADE, related_name="title_genre")
 
     def __str__(self):
         return f"{self.title} {self.genre}"
