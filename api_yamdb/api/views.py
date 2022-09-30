@@ -1,3 +1,5 @@
+from turtle import title
+
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
@@ -242,7 +244,11 @@ class CommentViewSet(viewsets.ModelViewSet):
     pagination_class = pagination.PageNumberPagination
 
     def get_review(self):
-        return get_object_or_404(Review, id=self.kwargs["review_id"])
+        return get_object_or_404(
+            Review,
+            title__id=self.kwargs["title_id"],
+            id=self.kwargs["review_id"],
+        )
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user, review=self.get_review())
