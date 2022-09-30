@@ -53,11 +53,12 @@ class Title(models.Model):
     name = models.CharField(
         "название",
         max_length=200,
+        unique=True,
     )
     year = models.PositiveIntegerField(
-        "год выпуска", validators=(custom_year_validator,)
+        "год выпуска",
+        validators=(custom_year_validator,)
     )
-    rating = models.IntegerField("рейтинг", default=None, null=True)
     description = models.TextField(
         "описание",
     )
@@ -75,9 +76,6 @@ class Title(models.Model):
         related_name="titles",
     )
 
-    class Meta:
-        ordering = ["id"]
-
     def __str__(self):
         return self.name
 
@@ -85,8 +83,8 @@ class Title(models.Model):
 class GenresTitles(models.Model):
     """Модель для связи title_id & genre_id."""
 
-    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
-    title = models.ForeignKey(Title, on_delete=models.CASCADE)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE, related_name="genre_title")
+    title = models.ForeignKey(Title, on_delete=models.CASCADE, related_name="title_genre")
 
     def __str__(self):
         return f"{self.title} {self.genre}"
@@ -120,7 +118,11 @@ class Review(models.Model):
     class Meta:
         ordering = ["-pub_date"]
         verbose_name = "Отзывы"
-        unique_together = ("author", "title")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["author", "title"], name="unique_author_title"
+            )
+        ]
 
     def __str__(self):
         return f"Отзыв {self.author} на произведение {self.title}"

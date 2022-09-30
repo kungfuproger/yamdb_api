@@ -13,13 +13,13 @@ FILE_MODEL = {
     "review.csv": Review,
     "comments.csv": Comment,
 }
-FK_MODEL = {
-    "author": User,
-    "review": Review,
-    "title": Title,
-    "category": Category,
-    "genre": Genre,
-}
+FK_FIELDS = [
+    "author",
+    "review",
+    "title",
+    "category",
+    "genre",
+]
 
 
 class Command(BaseCommand):
@@ -48,8 +48,9 @@ class Command(BaseCommand):
                 for field, value in row.items():
                     if "_id" in field:
                         field = field[:-3]
-                    if field in FK_MODEL.keys():
-                        kwargs[field] = FK_MODEL[field].objects.get(id=value)
+                    if field in FK_FIELDS:
+                        fk_model = model._meta.get_field(field).remote_field.model
+                        kwargs[field] = fk_model.objects.get(id=value)
                     else:
                         kwargs[field] = value
                 models.append(model(**kwargs))

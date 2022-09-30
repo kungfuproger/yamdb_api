@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
@@ -38,8 +39,16 @@ class SignUpSerializer(serializers.ModelSerializer):
     """Сериалайзер самостоятельной подписки."""
 
     class Meta:
+
         model = User
         fields = ("email", "username")
+
+
+class GetCodeSerializer(serializers.Serializer):
+    """Для получения токена, уже зарегестрированными пользователями."""
+
+    username = serializers.CharField(required=True)
+    email = serializers.EmailField(required=True)
 
 
 class AdminSerializer(serializers.ModelSerializer):
@@ -69,7 +78,6 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = ("name", "slug")
         lookup_field = "slug"
-        extra_kwargs = {"url": {"lookup_field": "slug"}}
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -79,7 +87,6 @@ class GenreSerializer(serializers.ModelSerializer):
         model = Genre
         fields = ("name", "slug")
         lookup_field = "slug"
-        extra_kwargs = {"url": {"lookup_field": "slug"}}
 
 
 class TitleWriteSerializer(serializers.ModelSerializer):
@@ -94,31 +101,50 @@ class TitleWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = TITLE_FIELDS
-        read_only_fields = ("id", "rating")
+        fields = "__all__"
+        read_only_fields = ("id",)
 
 
 class TitleReadSerializer(serializers.ModelSerializer):
     """Сериализатор модели произведения, только чтение."""
 
     genre = GenreSerializer(many=True)
-    category = CategorySerializer()
+    category = CategorySerializer(read_only=True)
+    rating = serializers.IntegerField()
 
     class Meta:
         model = Title
         fields = TITLE_FIELDS
 
 
+class CurrentTitleDefault:
+    """Получение тайтла из параметров url запроса"""
+
+    requires_context = True
+
+    def __call__(self, serializer_field):
+        return serializer_field.context["view"].kwargs["title_id"]
+
+
 class ReviewSerializer(serializers.ModelSerializer):
     """Серилизатор отзывов."""
 
     author = serializers.SlugRelatedField(
-        slug_field="username", read_only=True
+        slug_field="username",
+        read_only=True,
+        default=serializers.CurrentUserDefault(),
     )
+    title = serializers.HiddenField(default=CurrentTitleDefault())
 
     class Meta:
         model = Review
-        fields = ("id", "text", "author", "score", "pub_date")
+        fields = ("id", "text", "author", "score", "pub_date", "title")
+
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Review.objects.all(), fields=("author", "title")
+            )
+        ]
 
 
 class CommentSerializer(serializers.ModelSerializer):
