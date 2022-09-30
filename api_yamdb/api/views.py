@@ -10,19 +10,19 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
 
-from .filters import TitleFilter
-from .mixins import ListCreateDeleteViewSet
-from .permissions import (
-    AdminOrSuperuserOnly, ReadOnly, SafeOrAuthorOrExceedingRoleOnly,
-)
-from .serializers import (
-    AdminSerializer, CategorySerializer, CommentSerializer, GenreSerializer,
-    GetCodeSerializer, GetJWTokenSerializer, ProfileSerializer,
-    ReviewSerializer, SignUpSerializer, TitleReadSerializer,
-    TitleWriteSerializer,
-)
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
+
+from .filters import TitleFilter
+from .mixins import ListCreateDeleteViewSet
+from .permissions import (AdminOrSuperuserOnly, ReadOnly,
+                          SafeOrAuthorOrExceedingRoleOnly)
+from .serializers import (AdminSerializer, CategorySerializer,
+                          CommentSerializer, GenreSerializer,
+                          GetCodeSerializer, GetJWTokenSerializer,
+                          ProfileSerializer, ReviewSerializer,
+                          SignUpSerializer, TitleReadSerializer,
+                          TitleWriteSerializer)
 
 CODE_EMAIL = "confirmation_code@yamdb.yandex"
 

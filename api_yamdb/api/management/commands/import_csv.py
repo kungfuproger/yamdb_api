@@ -1,8 +1,9 @@
-from django.core.management.base import BaseCommand
 from csv import DictReader
 
+from django.core.management.base import BaseCommand
+
+from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
-from reviews.models import Review, Comment, Category, Genre, Title
 
 CSV_ROOT = "static/data/"
 FILE_MODEL = {
@@ -49,7 +50,9 @@ class Command(BaseCommand):
                     if "_id" in field:
                         field = field[:-3]
                     if field in FK_FIELDS:
-                        fk_model = model._meta.get_field(field).remote_field.model
+                        fk_model = model._meta.get_field(
+                            field
+                        ).remote_field.model
                         kwargs[field] = fk_model.objects.get(id=value)
                     else:
                         kwargs[field] = value
